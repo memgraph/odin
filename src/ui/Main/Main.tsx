@@ -26,6 +26,7 @@ const Main: React.FC = (): React.JSX.Element => {
 		edges: [],
 	});
 	const [type, setType] = useState<string>(DEFAULT_SELECTION);
+	const [suggested, setSuggested] = useState<number[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string>(
 		app?.workspace.activeEditor?.file?.path || ""
 	);
@@ -45,6 +46,7 @@ const Main: React.FC = (): React.JSX.Element => {
 	};
 
 	const onNodeClickCallback = async (node: any) => {
+		if (suggested.length > 0) setSuggested([]);
 		if (type === "file") {
 			console.log(node.data());
 			const fetchBody = {
@@ -93,11 +95,40 @@ const Main: React.FC = (): React.JSX.Element => {
 		});
 	};
 
-	const command = {
-		title: "Link prediction",
-		icon: "file-symlink",
-		callback: predictLinks,
+	const nodeSuggest = async (text: string) => {
+		const fetchBody = {
+			repo: {
+				path: root,
+				type: "Notes",
+			},
+			content: text,
+		};
+
+		await fetchData(
+			"http://localhost:8000/knowledge_base/notes/sentence_to_nodes",
+			fetchBody
+		).then((data) => {
+			console.log(data);
+			setSuggested(data.map((node: any) => node.id));
+			setType("file");
+			console.log(data.map((node: any) => node.id));
+		});
 	};
+
+	const commands = [
+		{
+			title: "Link prediction",
+			icon: "file-symlink",
+			callback: predictLinks,
+			data: "path",
+		},
+		{
+			title: "Node suggestion",
+			icon: "hexagon",
+			callback: nodeSuggest,
+			data: "selection",
+		},
+	];
 
 	const handleFileEvent = (operation: string) => (file: string) => {
 		const fetchBody = {
@@ -150,7 +181,9 @@ const Main: React.FC = (): React.JSX.Element => {
 							label: shortenWord(element.properties.name, 12),
 							priority: 1,
 							selected:
-								type !== "file" && selectedFile === fileName,
+								(type !== "file" &&
+									selectedFile === fileName) ||
+								suggested.contains(parseInt(element.id)),
 							path: fileName,
 						},
 					});
@@ -166,18 +199,20 @@ const Main: React.FC = (): React.JSX.Element => {
 			});
 		});
 
+		console.log(nodeList);
 		setData({ nodes: nodeList, edges: edgeList });
 	};
 
 	useEffect(() => {
 		populateGraphData();
-	}, [selectedFile, type]);
+	}, [selectedFile, suggested, type]);
 
 	useEffect(() => {
-		console.log("selected");
-	}, [app?.workspace.activeEditor?.editor?.getSelection()]);
+		fetchData("http://localhost:8000/knowledge_base/general/init_repo", {
+			path: root,
+			type: "Notes",
+		});
 
-	useEffect(() => {
 		OPERATIONS.forEach((op: any) => {
 			app?.vault.on(op, (file) => {
 				if (op !== "rename") handleFileEvent(op)(file.path);
@@ -189,16 +224,22 @@ const Main: React.FC = (): React.JSX.Element => {
 			setSelectedFile(app.workspace.activeEditor?.file?.path || "");
 		});
 
-		app?.workspace.on("editor-menu", (menu) => {
-			menu.addItem((item) => {
-				item.setTitle(command.title)
-					.setIcon(command.icon)
-					.onClick(() => {
-						if (command.callback)
-							command.callback(
-								app.workspace.activeEditor?.file?.path || ""
-							);
-					});
+		commands.forEach((command) => {
+			app?.workspace.on("editor-menu", (menu) => {
+				menu.addItem((item) => {
+					item.setTitle(command.title)
+						.setIcon(command.icon)
+						.onClick(() => {
+							if (command.callback) {
+								let arg =
+									app.workspace.activeEditor?.file?.path;
+								if (command.data === "selection")
+									arg =
+										app.workspace.activeEditor?.editor?.getSelection();
+								command.callback(arg || "");
+							}
+						});
+				});
 			});
 		});
 
@@ -210,6 +251,7 @@ const Main: React.FC = (): React.JSX.Element => {
 			<RadioSelect
 				options={options}
 				defaultSelectedValue="vault"
+				selectedValueOverride={type}
 				onChange={onChangeCallback}
 				disabled={selectedFile.length === 0}
 			/>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as S from "./RadioSelect.styles";
 
 interface OptionProps {
@@ -10,6 +10,7 @@ interface OptionProps {
 interface RadioSelectProps {
 	options: OptionProps[];
 	defaultSelectedValue: string;
+	selectedValueOverride?: string;
 	disabled: boolean;
 	onChange?: (value: string) => void;
 }
@@ -17,6 +18,7 @@ interface RadioSelectProps {
 const RadioSelect: React.FC<RadioSelectProps> = ({
 	options,
 	defaultSelectedValue,
+	selectedValueOverride,
 	disabled,
 	onChange,
 }) => {
@@ -28,6 +30,11 @@ const RadioSelect: React.FC<RadioSelectProps> = ({
 			if (onChange) onChange(value);
 		}
 	};
+
+	useEffect(() => {
+		if (selectedValueOverride && selectedValue !== selectedValueOverride)
+			setSelectedValue(selectedValueOverride);
+	}, [selectedValueOverride]);
 
 	return (
 		<S.RadioContainer>

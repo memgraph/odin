@@ -113,7 +113,10 @@ const Graph: React.FC<GraphProps> = ({ data, nodeClickCallback, type }) => {
 				cyRef.current?.nodes().forEach((node) => {
 					const nodeData = node.data();
 					if (nodeData.priority !== 1) node.unselectify();
-					if (nodeData.path === selected && type !== "file") {
+					if (
+						(nodeData.path === selected && type !== "file") ||
+						nodeData.selected
+					) {
 						node.select();
 					} else {
 						node.deselect();
