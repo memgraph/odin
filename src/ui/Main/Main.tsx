@@ -110,7 +110,12 @@ const Main: React.FC = (): React.JSX.Element => {
 		).then((data) => {
 			console.log(data);
 			setSuggested(data.map((node: any) => node.id));
-			setType("file");
+			if (type !== "file") {
+				setType("file");
+			} else {
+				populateGraphData();
+			}
+
 			console.log(data.map((node: any) => node.id));
 		});
 	};
@@ -205,7 +210,7 @@ const Main: React.FC = (): React.JSX.Element => {
 
 	useEffect(() => {
 		populateGraphData();
-	}, [selectedFile, suggested, type]);
+	}, [selectedFile, type]);
 
 	useEffect(() => {
 		fetchData("http://localhost:8000/knowledge_base/general/init_repo", {
