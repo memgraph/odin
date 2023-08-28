@@ -7,7 +7,7 @@ import { Edge, Node } from "src/shared/types/graphTypes";
 import RadioSelect from "../RadioSelect/RadioSelect";
 import { Archive, FileBarChart2 } from "lucide-react";
 import { fetchData } from "src/util/fetchData";
-import { FileSystemAdapter, Notice } from "obsidian";
+import { FileSystemAdapter, Notice, TAbstractFile } from "obsidian";
 import shortenWord from "src/util/shortenWord";
 import getEditorPosition from "src/util/getEditorPosition";
 import { loadingText, noSelectedText } from "src/shared/constants";
@@ -17,6 +17,7 @@ const DEFAULT_SELECTION = "vault";
 const operationsMap: Record<string, { url: string; method: string }> = {
 	create: { url: "add", method: "PUT" },
 	modify: { url: "update", method: "PUT" },
+	rename: { url: "rename", method: "POST" },
 	delete: { url: "delete", method: "DELETE" },
 };
 
@@ -150,20 +151,29 @@ const Main: React.FC = (): React.JSX.Element => {
 		},
 	];
 
-	const handleFileEvent = (operation: string) => (file: string) => {
-		const fetchBody = {
-			path: root + "/" + file,
-			type: "Notes",
-			content: "",
-		};
+	const handleFileEvent =
+		(operation: string) => (file: TAbstractFile, oldPath?: string) => {
+			let fetchBody;
+			if (operation === "rename") {
+				fetchBody = {
+					old_file: { path: oldPath, type: "Notes", content: "" },
+					new_file: { path: file.path, type: "Notes", content: "" },
+				};
+			} else {
+				fetchBody = {
+					path: root + "/" + file.path,
+					type: "Notes",
+					content: "",
+				};
+			}
 
-		fetchData(
-			`http://localhost:8000/knowledge_base/notes/${operationsMap[operation].url}_file`,
-			fetchBody,
-			operationsMap[operation].method
-		);
-		populateGraphData(false);
-	};
+			fetchData(
+				`http://localhost:8000/knowledge_base/notes/${operationsMap[operation].url}_file`,
+				fetchBody,
+				operationsMap[operation].method
+			);
+			populateGraphData(false);
+		};
 
 	const populateGraphData = async (reload: boolean) => {
 		let ignoreResults = false;
@@ -194,35 +204,43 @@ const Main: React.FC = (): React.JSX.Element => {
 		console.log("fetching");
 		await fetchData(fetchUrl, fetchBody).then((data) => {
 			if (!ignoreResults) {
-				console.log(data);
-				data.forEach((element: any) => {
-					if (element.type === "node") {
-						const fileName = element.properties.file_path.replace(
-							root + "/",
-							""
-						);
-						nodeList.push({
-							data: {
-								id: element.id,
-								label: shortenWord(element.properties.name, 12),
-								priority: 1,
-								selected:
-									(type !== "file" &&
-										selectedFile === fileName) ||
-									suggested.contains(parseInt(element.id)),
-								path: fileName,
-							},
-						});
-					} else if (element.type === "relationship") {
-						edgeList.push({
-							data: {
-								id: element.id,
-								source: element.start,
-								target: element.end,
-							},
-						});
-					}
-				});
+				if (data && data.length > 0) {
+					console.log(data);
+					data.forEach((element: any) => {
+						if (element.type === "node") {
+							const fileName =
+								element.properties.file_path.replace(
+									root + "/",
+									""
+								);
+							nodeList.push({
+								data: {
+									id: element.id,
+									label: shortenWord(
+										element.properties.name,
+										12
+									),
+									priority: 1,
+									selected:
+										(type !== "file" &&
+											selectedFile === fileName) ||
+										suggested.contains(
+											parseInt(element.id)
+										),
+									path: fileName,
+								},
+							});
+						} else if (element.type === "relationship") {
+							edgeList.push({
+								data: {
+									id: element.id,
+									source: element.start,
+									target: element.end,
+								},
+							});
+						}
+					});
+				}
 			}
 		});
 
@@ -265,8 +283,12 @@ const Main: React.FC = (): React.JSX.Element => {
 		initRepo();
 
 		OPERATIONS.forEach((op: any) => {
-			app?.vault.on(op, (file) => {
-				if (op !== "rename") handleFileEvent(op)(file.path);
+			app?.vault.on(op, (file, oldPath?: string) => {
+				if (op === "rename") {
+					handleFileEvent(op)(file, oldPath);
+				} else {
+					handleFileEvent(op)(file);
+				}
 				populateGraphData(false);
 			});
 		});
