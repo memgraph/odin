@@ -23,3 +23,17 @@ export const LoadingContainer = styled(AnimatedRotate)`
     top: 50%;
     left: 50%;
 `;
+
+export const GlobalLoadingContainer = styled.div`
+    width: var(--size-4-12);
+    height: var(--size-4-12);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: var(--size-4-3);
+    right: var(--size-4-3);
+    border-radius: var(--tab-radius);
+    background-color: var(--color-base-00);
+    border: 1px solid var(--divider-color);
+`;

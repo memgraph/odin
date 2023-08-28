@@ -72,7 +72,7 @@ const Graph: React.FC<GraphProps> = ({
 
 	useEffect(() => {
 		const handleNodeClick = (event: cytoscape.EventObject) => {
-			if (nodeClickCallback) {
+			if (!disabled && nodeClickCallback) {
 				nodeClickCallback(event.target);
 			}
 		};

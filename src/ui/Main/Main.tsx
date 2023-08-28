@@ -11,6 +11,7 @@ import { FileSystemAdapter, Notice, TAbstractFile } from "obsidian";
 import shortenWord from "src/util/shortenWord";
 import getEditorPosition from "src/util/getEditorPosition";
 import { loadingText, noSelectedText } from "src/shared/constants";
+import { AnimatedRotate } from "src/shared/animations";
 
 const OPERATIONS = ["create", "delete", "modify", "rename"];
 const DEFAULT_SELECTION = "vault";
@@ -53,6 +54,8 @@ const Main: React.FC = (): React.JSX.Element => {
 
 	const onNodeClickCallback = async (node: any) => {
 		if (type === "file") {
+			setDisabled(true);
+			const active = selectedFile;
 			if (suggested.length > 0) setSuggested([]);
 			const fetchBody = {
 				repo: {
@@ -76,12 +79,22 @@ const Main: React.FC = (): React.JSX.Element => {
 						)
 					);
 				});
-				app?.workspace.activeEditor?.editor?.setSelections(selections);
+
+				if (active === selectedFile)
+					app?.workspace.activeEditor?.editor?.setSelections(
+						selections
+					);
 			});
+			setDisabled(false);
 		}
 	};
 
 	const predictLinks = async (file: string) => {
+		if (!app?.workspace.activeEditor?.editor?.getSelection()) {
+			new Notice(noSelectedText);
+			return;
+		}
+
 		const fetchBody = {
 			repo: {
 				path: root + "/" + file,
@@ -323,6 +336,13 @@ const Main: React.FC = (): React.JSX.Element => {
 
 	return (
 		<S.Container>
+			{disabled && !graphLoading && (
+				<S.GlobalLoadingContainer>
+					<AnimatedRotate>
+						<S.LoadingIcon />
+					</AnimatedRotate>
+				</S.GlobalLoadingContainer>
+			)}
 			<RadioSelect
 				options={options}
 				defaultSelectedValue="vault"
