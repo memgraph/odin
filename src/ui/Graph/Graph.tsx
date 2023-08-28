@@ -12,9 +12,17 @@ interface GraphProps {
 	};
 	nodeClickCallback?: (node: any) => void;
 	type?: string;
+	visible: boolean;
+	disabled: boolean;
 }
 
-const Graph: React.FC<GraphProps> = ({ data, nodeClickCallback, type }) => {
+const Graph: React.FC<GraphProps> = ({
+	data,
+	nodeClickCallback,
+	type,
+	visible,
+	disabled,
+}) => {
 	const [selected, setSelected] = useState<string | undefined>(undefined);
 	const cyRef = useRef<cytoscape.Core | null>(null);
 	const app = useApp();
@@ -115,7 +123,7 @@ const Graph: React.FC<GraphProps> = ({ data, nodeClickCallback, type }) => {
 					if (nodeData.priority !== 1) node.unselectify();
 					if (
 						(nodeData.path === selected && type !== "file") ||
-						nodeData.selected
+						(nodeData.selected && type === "file")
 					) {
 						node.select();
 					} else {
@@ -126,7 +134,7 @@ const Graph: React.FC<GraphProps> = ({ data, nodeClickCallback, type }) => {
 		}
 	}, [data, selected]);
 
-	return <GraphContainer id="cy" />;
+	return <GraphContainer id="cy" visible={visible} />;
 };
 
 export default Graph;

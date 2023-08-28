@@ -36,6 +36,11 @@ const RadioSelect: React.FC<RadioSelectProps> = ({
 			setSelectedValue(selectedValueOverride);
 	}, [selectedValueOverride]);
 
+	useEffect(() => {
+		console.log("Radio select:");
+		console.log(disabled);
+	}, [disabled]);
+
 	return (
 		<S.RadioContainer>
 			{options.map((option) => (
@@ -49,6 +54,7 @@ const RadioSelect: React.FC<RadioSelectProps> = ({
 						value={option.value}
 						checked={selectedValue === option.value}
 						onChange={() => handleOptionChange(option.value)}
+						disabled={disabled}
 					/>
 					{option.label}
 					{option.text}

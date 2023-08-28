@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Graph from "../Graph/Graph";
 import PromptBar from "../PromptBar/PromptBar";
 import * as S from "./Main.styles";
@@ -7,9 +7,10 @@ import { Edge, Node } from "src/shared/types/graphTypes";
 import RadioSelect from "../RadioSelect/RadioSelect";
 import { Archive, FileBarChart2 } from "lucide-react";
 import { fetchData } from "src/util/fetchData";
-import { FileSystemAdapter } from "obsidian";
+import { FileSystemAdapter, Notice } from "obsidian";
 import shortenWord from "src/util/shortenWord";
 import getEditorPosition from "src/util/getEditorPosition";
+import { loadingText, noSelectedText } from "src/shared/constants";
 
 const OPERATIONS = ["create", "delete", "modify", "rename"];
 const DEFAULT_SELECTION = "vault";
@@ -30,6 +31,10 @@ const Main: React.FC = (): React.JSX.Element => {
 	const [selectedFile, setSelectedFile] = useState<string>(
 		app?.workspace.activeEditor?.file?.path || ""
 	);
+	const [graphLoading, setGraphLoading] = useState<boolean>(false);
+	const [firstRender, setFirstRender] = useState<boolean>(true);
+	const [disabled, setDisabled] = useState<boolean>(true);
+	const disabledRef = useRef<boolean>(true);
 
 	const options = [
 		{ label: <Archive />, value: "vault", text: "Vault view" },
@@ -46,9 +51,8 @@ const Main: React.FC = (): React.JSX.Element => {
 	};
 
 	const onNodeClickCallback = async (node: any) => {
-		if (suggested.length > 0) setSuggested([]);
 		if (type === "file") {
-			console.log(node.data());
+			if (suggested.length > 0) setSuggested([]);
 			const fetchBody = {
 				repo: {
 					path: root,
@@ -61,7 +65,6 @@ const Main: React.FC = (): React.JSX.Element => {
 				"http://localhost:8000/knowledge_base/notes/node_to_sentences",
 				fetchBody
 			).then((data) => {
-				console.log(data);
 				const selections: any = [];
 				data.forEach((element: any) => {
 					selections.push(
@@ -96,6 +99,19 @@ const Main: React.FC = (): React.JSX.Element => {
 	};
 
 	const nodeSuggest = async (text: string) => {
+		console.log("disabled:");
+		console.log(disabledRef.current);
+		if (disabledRef.current) {
+			new Notice(loadingText);
+			return;
+		}
+
+		if (text.length === 0) {
+			new Notice(noSelectedText);
+			return;
+		}
+
+		setDisabled(true);
 		const fetchBody = {
 			repo: {
 				path: root,
@@ -113,11 +129,10 @@ const Main: React.FC = (): React.JSX.Element => {
 			if (type !== "file") {
 				setType("file");
 			} else {
-				populateGraphData();
+				populateGraphData(false);
 			}
-
-			console.log(data.map((node: any) => node.id));
 		});
+		setDisabled(false);
 	};
 
 	const commands = [
@@ -147,10 +162,13 @@ const Main: React.FC = (): React.JSX.Element => {
 			fetchBody,
 			operationsMap[operation].method
 		);
-		populateGraphData();
+		populateGraphData(false);
 	};
 
-	const populateGraphData = async () => {
+	const populateGraphData = async (reload: boolean) => {
+		let ignoreResults = false;
+		setDisabled(true);
+		if (reload) setGraphLoading(true);
 		const nodeList: Node[] = [];
 		const edgeList: Edge[] = [];
 
@@ -173,55 +191,83 @@ const Main: React.FC = (): React.JSX.Element => {
 			};
 		}
 
+		console.log("fetching");
 		await fetchData(fetchUrl, fetchBody).then((data) => {
-			data.forEach((element: any) => {
-				if (element.type === "node") {
-					const fileName = element.properties.file_path.replace(
-						root + "/",
-						""
-					);
-					nodeList.push({
-						data: {
-							id: element.id,
-							label: shortenWord(element.properties.name, 12),
-							priority: 1,
-							selected:
-								(type !== "file" &&
-									selectedFile === fileName) ||
-								suggested.contains(parseInt(element.id)),
-							path: fileName,
-						},
-					});
-				} else if (element.type === "relationship") {
-					edgeList.push({
-						data: {
-							id: element.id,
-							source: element.start,
-							target: element.end,
-						},
-					});
-				}
-			});
+			if (!ignoreResults) {
+				console.log(data);
+				data.forEach((element: any) => {
+					if (element.type === "node") {
+						const fileName = element.properties.file_path.replace(
+							root + "/",
+							""
+						);
+						nodeList.push({
+							data: {
+								id: element.id,
+								label: shortenWord(element.properties.name, 12),
+								priority: 1,
+								selected:
+									(type !== "file" &&
+										selectedFile === fileName) ||
+									suggested.contains(parseInt(element.id)),
+								path: fileName,
+							},
+						});
+					} else if (element.type === "relationship") {
+						edgeList.push({
+							data: {
+								id: element.id,
+								source: element.start,
+								target: element.end,
+							},
+						});
+					}
+				});
+			}
 		});
 
 		console.log(nodeList);
 		setData({ nodes: nodeList, edges: edgeList });
+		setGraphLoading(false);
+		console.log("repopulated");
+		setDisabled(false);
+		console.log(disabled || selectedFile.length === 0);
+
+		return () => {
+			ignoreResults = true;
+		};
 	};
 
 	useEffect(() => {
-		populateGraphData();
-	}, [selectedFile, type]);
+		disabledRef.current = disabled;
+	}, [disabled]);
 
 	useEffect(() => {
-		fetchData("http://localhost:8000/knowledge_base/general/init_repo", {
-			path: root,
-			type: "Notes",
-		});
+		if (!firstRender) populateGraphData(false);
+	}, [selectedFile]);
+
+	useEffect(() => {
+		if (!firstRender) populateGraphData(true);
+	}, [type]);
+
+	useEffect(() => {
+		setDisabled(true);
+		const initRepo = async () => {
+			await fetchData(
+				"http://localhost:8000/knowledge_base/general/init_local_repo",
+				{
+					path: root,
+					type: "Notes",
+				}
+			);
+		};
+
+		initRepo();
 
 		OPERATIONS.forEach((op: any) => {
 			app?.vault.on(op, (file) => {
 				if (op !== "rename") handleFileEvent(op)(file.path);
-				populateGraphData();
+				populateGraphData(false);
 			});
 		});
 
@@ -248,7 +294,9 @@ const Main: React.FC = (): React.JSX.Element => {
 			});
 		});
 
-		populateGraphData();
+		populateGraphData(true);
+		setDisabled(false);
+		setFirstRender(false);
 	}, []);
 
 	return (
@@ -258,13 +306,20 @@ const Main: React.FC = (): React.JSX.Element => {
 				defaultSelectedValue="vault"
 				selectedValueOverride={type}
 				onChange={onChangeCallback}
-				disabled={selectedFile.length === 0}
+				disabled={selectedFile.length === 0 || disabled}
 			/>
 			<Graph
 				data={data}
 				nodeClickCallback={onNodeClickCallback}
 				type={type}
+				visible={!graphLoading}
+				disabled={disabled}
 			/>
+			{graphLoading && (
+				<S.LoadingContainer>
+					<S.LoadingIcon />
+				</S.LoadingContainer>
+			)}
 			<PromptBar />
 		</S.Container>
 	);

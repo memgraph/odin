@@ -2,6 +2,10 @@ import styled from "styled-components";
 import cytoscape from "cytoscape";
 import theme from "src/shared/theme";
 
+interface GraphContainerProps {
+    visible: boolean;
+}
+
 const priorityColors = {
     1: theme.colors["secondary-neutral"],
     2: theme.colors["accent-light"],
@@ -10,9 +14,10 @@ const priorityColors = {
 
 type priorityColorsKey = keyof typeof priorityColors;
 
-export const GraphContainer = styled.div`
+export const GraphContainer = styled.div<GraphContainerProps>`
     width: 100%;
     height: 100%;
+    visibility: ${props => props.visible ? "visible" : "hidden"};
 `;
 
 export const GraphStyle = [

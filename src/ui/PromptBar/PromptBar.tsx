@@ -28,6 +28,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
 
 	const inputElement = useRef<HTMLLabelElement>(null);
 	const elementBottom = useRef<HTMLDivElement | null>(null);
+	const disabled = useRef<boolean>(false);
 	const scrollToBottom = () => {
 		elementBottom?.current?.scroll({
 			behavior: "smooth",
@@ -36,7 +37,9 @@ const PromptBar: React.FC<PromptBarProps> = ({
 	};
 
 	const generateQuestions = (file: string) => {
-		handleSubmit(false, 1, `Generate questions for ${file}`);
+		console.log(disabled);
+		if (!disabled.current)
+			handleSubmit(false, 1, `Generate questions for ${file}`);
 	};
 
 	const command = {
@@ -82,6 +85,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
 		type: number,
 		valueOverride?: string
 	) => {
+		disabled.current = true;
 		if (submitCallback) {
 			submitCallback(value);
 		}
@@ -150,10 +154,11 @@ const PromptBar: React.FC<PromptBarProps> = ({
 		setTimeout(() => {
 			inputElement.current?.focus();
 		}, 0);
+		disabled.current = false;
 	};
 
 	const handlePromptClick = (msg: string) => {
-		if (!loading && !error) {
+		if (!loading && !error && !disabled) {
 			setValue(msg);
 			setTimeout(() => {
 				inputElement.current?.focus();
