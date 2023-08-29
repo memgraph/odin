@@ -10,7 +10,7 @@ import { fetchData } from "src/util/fetchData";
 import { FileSystemAdapter, Notice, TAbstractFile } from "obsidian";
 import shortenWord from "src/util/shortenWord";
 import getEditorPosition from "src/util/getEditorPosition";
-import { loadingText, noSelectedText } from "src/shared/constants";
+import * as Messages from "src/shared/constants";
 import { AnimatedRotate } from "src/shared/animations";
 
 const OPERATIONS = ["create", "delete", "modify", "rename"];
@@ -68,30 +68,34 @@ const Main: React.FC = (): React.JSX.Element => {
 			await fetchData(
 				"http://localhost:8000/knowledge_base/notes/node_to_sentences",
 				fetchBody
-			).then((data) => {
-				const selections: any = [];
-				data.forEach((element: any) => {
-					selections.push(
-						getEditorPosition(
-							app?.workspace.activeEditor?.editor?.getValue() ||
-								"",
-							element.content
-						)
-					);
-				});
+			)
+				.then((data) => {
+					const selections: any = [];
+					data.forEach((element: any) => {
+						selections.push(
+							getEditorPosition(
+								app?.workspace.activeEditor?.editor?.getValue() ||
+									"",
+								element.content
+							)
+						);
+					});
 
-				if (active === selectedFile)
-					app?.workspace.activeEditor?.editor?.setSelections(
-						selections
-					);
-			});
+					if (active === selectedFile)
+						app?.workspace.activeEditor?.editor?.setSelections(
+							selections
+						);
+				})
+				.catch(() => {
+					new Notice(Messages.fetchFailed);
+				});
 			setDisabled(false);
 		}
 	};
 
 	const predictLinks = async (file: string) => {
 		if (!app?.workspace.activeEditor?.editor?.getSelection()) {
-			new Notice(noSelectedText);
+			new Notice(Messages.noSelectedText);
 			return;
 		}
 
@@ -106,22 +110,26 @@ const Main: React.FC = (): React.JSX.Element => {
 		await fetchData(
 			"http://localhost:8000/knowledge_base/notes/suggest_link",
 			fetchBody
-		).then((data) => {
-			// TODO
-			console.log(data);
-		});
+		)
+			.then((data) => {
+				// TODO
+				console.log(data);
+			})
+			.catch(() => {
+				new Notice(Messages.fetchFailed);
+			});
 	};
 
 	const nodeSuggest = async (text: string) => {
 		console.log("disabled:");
 		console.log(disabledRef.current);
 		if (disabledRef.current) {
-			new Notice(loadingText);
+			new Notice(Messages.loadingText);
 			return;
 		}
 
 		if (text.length === 0) {
-			new Notice(noSelectedText);
+			new Notice(Messages.noSelectedText);
 			return;
 		}
 
@@ -137,15 +145,19 @@ const Main: React.FC = (): React.JSX.Element => {
 		await fetchData(
 			"http://localhost:8000/knowledge_base/notes/sentence_to_nodes",
 			fetchBody
-		).then((data) => {
-			console.log(data);
-			setSuggested(data.map((node: any) => node.id));
-			if (type !== "file") {
-				setType("file");
-			} else {
-				populateGraphData(false);
-			}
-		});
+		)
+			.then((data) => {
+				console.log(data);
+				setSuggested(data.map((node: any) => node.id));
+				if (type !== "file") {
+					setType("file");
+				} else {
+					populateGraphData(false);
+				}
+			})
+			.catch(() => {
+				new Notice(Messages.fetchFailed);
+			});
 		setDisabled(false);
 	};
 
@@ -184,7 +196,9 @@ const Main: React.FC = (): React.JSX.Element => {
 				`http://localhost:8000/knowledge_base/notes/${operationsMap[operation].url}_file`,
 				fetchBody,
 				operationsMap[operation].method
-			);
+			).catch(() => {
+				new Notice(Messages.updateFailed);
+			});
 			populateGraphData(false);
 		};
 
@@ -215,48 +229,52 @@ const Main: React.FC = (): React.JSX.Element => {
 		}
 
 		console.log("fetching");
-		await fetchData(fetchUrl, fetchBody).then((data) => {
-			if (!ignoreResults) {
-				if (data && data.length > 0) {
-					console.log(data);
-					data.forEach((element: any) => {
-						if (element.type === "node") {
-							const fileName =
-								element.properties.file_path.replace(
-									root + "/",
-									""
-								);
-							nodeList.push({
-								data: {
-									id: element.id,
-									label: shortenWord(
-										element.properties.name,
-										12
-									),
-									priority: 1,
-									selected:
-										(type !== "file" &&
-											selectedFile === fileName) ||
-										suggested.contains(
-											parseInt(element.id)
+		await fetchData(fetchUrl, fetchBody)
+			.then((data) => {
+				if (!ignoreResults) {
+					if (data && data.length > 0) {
+						console.log(data);
+						data.forEach((element: any) => {
+							if (element.type === "node") {
+								const fileName =
+									element.properties.file_path.replace(
+										root + "/",
+										""
+									);
+								nodeList.push({
+									data: {
+										id: element.id,
+										label: shortenWord(
+											element.properties.name,
+											12
 										),
-									path: fileName,
-								},
-							});
-						} else if (element.type === "relationship") {
-							edgeList.push({
-								data: {
-									id: element.id,
-									label: shortenWord(element.label, 12),
-									source: element.start,
-									target: element.end,
-								},
-							});
-						}
-					});
+										priority: 1,
+										selected:
+											(type !== "file" &&
+												selectedFile === fileName) ||
+											suggested.contains(
+												parseInt(element.id)
+											),
+										path: fileName,
+									},
+								});
+							} else if (element.type === "relationship") {
+								edgeList.push({
+									data: {
+										id: element.id,
+										label: shortenWord(element.label, 12),
+										source: element.start,
+										target: element.end,
+									},
+								});
+							}
+						});
+					}
 				}
-			}
-		});
+			})
+			.catch(() => {
+				new Notice(Messages.fetchFailed);
+			});
 
 		console.log(nodeList);
 		setData({ nodes: nodeList, edges: edgeList });

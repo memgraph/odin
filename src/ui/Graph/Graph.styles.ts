@@ -40,7 +40,7 @@ export const GraphStyle = [
         style: {
             width: 1,
             label: "data(label)",
-            color: theme.colors["secondary-neutral"],
+            color: theme.colors["secondary-dark"],
             "line-color": (edge: cytoscape.EdgeSingular) =>
                 priorityColors[edge.target().data('priority') as priorityColorsKey],
             "target-arrow-color": theme.colors["secondary-neutral"],
