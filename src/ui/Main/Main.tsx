@@ -8,10 +8,10 @@ import RadioSelect from "../RadioSelect/RadioSelect";
 import { Archive, FileBarChart2 } from "lucide-react";
 import { fetchData } from "src/util/fetchData";
 import { FileSystemAdapter, Notice, TAbstractFile } from "obsidian";
-import shortenWord from "src/util/shortenWord";
 import getEditorPosition from "src/util/getEditorPosition";
 import * as Messages from "src/shared/constants";
 import { AnimatedRotate } from "src/shared/animations";
+import { fetchGraphData } from "./MainUtils";
 
 const OPERATIONS = ["create", "delete", "modify", "rename"];
 const DEFAULT_SELECTION = "vault";
@@ -53,6 +53,7 @@ const Main: React.FC = (): React.JSX.Element => {
 	};
 
 	const onNodeClickCallback = async (node: any) => {
+		let ignoreResults = false;
 		if (type === "file") {
 			setDisabled(true);
 			const active = selectedFile;
@@ -81,7 +82,7 @@ const Main: React.FC = (): React.JSX.Element => {
 						);
 					});
 
-					if (active === selectedFile)
+					if (active === selectedFile && !ignoreResults)
 						app?.workspace.activeEditor?.editor?.setSelections(
 							selections
 						);
@@ -91,6 +92,10 @@ const Main: React.FC = (): React.JSX.Element => {
 				});
 			setDisabled(false);
 		}
+
+		return () => {
+			ignoreResults = true;
+		};
 	};
 
 	const predictLinks = async (file: string) => {
@@ -206,78 +211,15 @@ const Main: React.FC = (): React.JSX.Element => {
 		let ignoreResults = false;
 		setDisabled(true);
 		if (reload) setGraphLoading(true);
-		const nodeList: Node[] = [];
-		const edgeList: Edge[] = [];
 
-		let fetchBody = {};
-		const fetchUrl =
-			type === "vault"
-				? "http://localhost:8000/knowledge_base/general/get_all_for_repo"
-				: "http://localhost:8000/knowledge_base/notes/get_for_path";
-
-		if (type === "vault") {
-			fetchBody = {
-				path: root,
-				type: "Notes",
-			};
-		} else if (type === "file" && selectedFile) {
-			fetchBody = {
-				path: root + "/" + selectedFile,
-				type: "Notes",
-				content: "",
-			};
-		}
-
-		console.log("fetching");
-		await fetchData(fetchUrl, fetchBody)
+		await fetchGraphData(type, root, selectedFile, ignoreResults, suggested)
 			.then((data) => {
-				if (!ignoreResults) {
-					if (data && data.length > 0) {
-						console.log(data);
-						data.forEach((element: any) => {
-							if (element.type === "node") {
-								const fileName =
-									element.properties.file_path.replace(
-										root + "/",
-										""
-									);
-								nodeList.push({
-									data: {
-										id: element.id,
-										label: shortenWord(
-											element.properties.name,
-											12
-										),
-										priority: 1,
-										selected:
-											(type !== "file" &&
-												selectedFile === fileName) ||
-											suggested.contains(
-												parseInt(element.id)
-											),
-										path: fileName,
-									},
-								});
-							} else if (element.type === "relationship") {
-								edgeList.push({
-									data: {
-										id: element.id,
-										label: shortenWord(element.label, 12),
-										source: element.start,
-										target: element.end,
-									},
-								});
-							}
-						});
-					}
-				}
+				setData(data);
 			})
 			.catch(() => {
 				new Notice(Messages.fetchFailed);
 			});
 
-		console.log(nodeList);
-		setData({ nodes: nodeList, edges: edgeList });
 		setGraphLoading(false);
 		console.log("repopulated");
 		setDisabled(false);
