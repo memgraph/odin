@@ -247,6 +247,7 @@ const Main: React.FC = (): React.JSX.Element => {
 							edgeList.push({
 								data: {
 									id: element.id,
+									label: shortenWord(element.label, 12),
 									source: element.start,
 									target: element.end,
 								},

@@ -49,7 +49,7 @@ const Graph: React.FC<GraphProps> = ({
 				app?.workspace.openLinkText("", event.target.data().path);
 			}
 		};
-		cyRef.current?.on("tapend", "node", handleNodeClick);
+		cyRef.current?.on("click", "node", handleNodeClick);
 	};
 
 	const registerClickHandler = () => {
@@ -67,7 +67,7 @@ const Graph: React.FC<GraphProps> = ({
 					.selectify();
 			}
 		};
-		cyRef.current?.on("tapend", handleClick);
+		cyRef.current?.on("click", handleClick);
 	};
 
 	useEffect(() => {
@@ -76,7 +76,7 @@ const Graph: React.FC<GraphProps> = ({
 				nodeClickCallback(event.target);
 			}
 		};
-		cyRef.current?.on("tapend", "node", handleNodeClick);
+		cyRef.current?.on("click", "node", handleNodeClick);
 	}, [nodeClickCallback]);
 
 	useEffect(() => {
@@ -85,7 +85,12 @@ const Graph: React.FC<GraphProps> = ({
 			container: document.getElementById("cy"),
 			elements: { nodes: [], edges: [] },
 			style: GraphStyle,
-			layout: { name: layout },
+			layout: {
+				name: layout,
+				fit: true,
+				padding: 150,
+				spacingFactor: 150,
+			},
 			minZoom: 0.3,
 			maxZoom: 2,
 		});

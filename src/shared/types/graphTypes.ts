@@ -11,6 +11,7 @@ export interface Node {
 export interface Edge {
     data: {
         id: string;
+        label: string;
         source: string;
         target: string;
     };

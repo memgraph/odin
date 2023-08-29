@@ -38,10 +38,16 @@ export const GraphStyle = [
     {
         selector: "edge",
         style: {
+            width: 1,
+            label: "data(label)",
+            color: theme.colors["secondary-neutral"],
             "line-color": (edge: cytoscape.EdgeSingular) =>
                 priorityColors[edge.target().data('priority') as priorityColorsKey],
             "target-arrow-color": theme.colors["secondary-neutral"],
             "target-arrow-shape": "triangle",
+            "curve-style": "bezier",
+            "edge-text-rotation": "autorotate",
+            "font-size": "12px",
         },
     },
     {
