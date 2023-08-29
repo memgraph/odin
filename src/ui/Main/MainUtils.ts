@@ -1,3 +1,5 @@
+import { GraphEdge } from "src/model/GraphEdge";
+import { GraphNode } from "src/model/GraphNode";
 import { Edge, Node } from "src/shared/types/graphTypes";
 import { fetchData } from "src/util/fetchData";
 import shortenWord from "src/util/shortenWord";
@@ -30,9 +32,10 @@ export const fetchGraphData = async (type: string, root: string, selectedFile: s
         .then((data) => {
             if (!ignoreResults) {
                 if (data && data.length > 0) {
+                    console.log("fetched data: ")
                     console.log(data);
-                    data.forEach((element: any) => {
-                        if (element.type === "node") {
+                    data.forEach((element: GraphEdge | GraphNode) => {
+                        if (element.type === "node" && "name" in element.properties) {
                             const fileName =
                                 element.properties.file_path.replace(
                                     root + "/",
@@ -40,7 +43,7 @@ export const fetchGraphData = async (type: string, root: string, selectedFile: s
                                 );
                             nodeList.push({
                                 data: {
-                                    id: element.id,
+                                    id: element.id + "",
                                     label: shortenWord(
                                         element.properties.name,
                                         12
@@ -49,19 +52,17 @@ export const fetchGraphData = async (type: string, root: string, selectedFile: s
                                     selected:
                                         (type !== "file" &&
                                             selectedFile === fileName) ||
-                                        suggested.contains(
-                                            parseInt(element.id)
-                                        ),
+                                        suggested.contains(element.id),
                                     path: fileName,
                                 },
                             });
-                        } else if (element.type === "relationship") {
+                        } else if (element.type === "relationship" && "label" in element) {
                             edgeList.push({
                                 data: {
-                                    id: element.id,
+                                    id: element.id + "",
                                     label: shortenWord(element.label, 12),
-                                    source: element.start,
-                                    target: element.end,
+                                    source: element.start + "",
+                                    target: element.end + "",
                                 },
                             });
                         }

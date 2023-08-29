@@ -12,6 +12,10 @@ import getEditorPosition from "src/util/getEditorPosition";
 import * as Messages from "src/shared/messages";
 import { fetchGraphData } from "./MainUtils";
 import * as Constants from "src/shared/constants";
+import { NodeSingular } from "cytoscape";
+import { AnalyticsNode } from "src/model/AnalyticsNode";
+import { Selection } from "src/shared/types/Selection";
+import { Sentence } from "src/model/Sentence";
 
 const Main: React.FC = (): React.JSX.Element => {
 	const app = useApp();
@@ -43,7 +47,7 @@ const Main: React.FC = (): React.JSX.Element => {
 		setType(value);
 	};
 
-	const onNodeClickCallback = async (node: any) => {
+	const onNodeClickCallback = async (node: NodeSingular) => {
 		let ignoreResults = false;
 		if (type === "file") {
 			setDisabled(true);
@@ -62,8 +66,8 @@ const Main: React.FC = (): React.JSX.Element => {
 				fetchBody
 			)
 				.then((data) => {
-					const selections: any = [];
-					data.forEach((element: any) => {
+					const selections: Selection[] = [];
+					data.forEach((element: Sentence) => {
 						selections.push(
 							getEditorPosition(
 								app?.workspace.activeEditor?.editor?.getValue() ||
@@ -143,8 +147,9 @@ const Main: React.FC = (): React.JSX.Element => {
 			fetchBody
 		)
 			.then((data) => {
+				console.log("fetched nodes data: ");
 				console.log(data);
-				setSuggested(data.map((node: any) => node.id));
+				setSuggested(data.map((node: AnalyticsNode) => node.id));
 				if (type !== "file") {
 					setType("file");
 				} else {
@@ -247,7 +252,7 @@ const Main: React.FC = (): React.JSX.Element => {
 
 		//initRepo();
 
-		Constants.OPERATIONS.forEach((op: any) => {
+		Constants.OPERATIONS.forEach((op: "rename") => {
 			app?.vault.on(op, (file, oldPath?: string) => {
 				if (op === "rename") {
 					handleFileEvent(op)(file, oldPath);

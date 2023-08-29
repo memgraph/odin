@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import cytoscape from "cytoscape";
+import cytoscape, { NodeSingular } from "cytoscape";
 import { GraphContainer, GraphStyle } from "./Graph.styles";
 import { Node, Edge } from "../../shared/types/graphTypes";
 import { LAYOUT } from "../../shared/constants";
@@ -10,7 +10,7 @@ interface GraphProps {
 		nodes: Node[];
 		edges: Edge[];
 	};
-	nodeClickCallback?: (node: any) => void;
+	nodeClickCallback?: (node: NodeSingular) => void;
 	type?: string;
 	visible: boolean;
 	disabled: boolean;
@@ -139,7 +139,7 @@ const Graph: React.FC<GraphProps> = ({
 		}
 	}, [data, selected]);
 
-	return <GraphContainer id="cy" visible={visible} />;
+	return <GraphContainer id="cy" $visible={visible} />;
 };
 
 export default Graph;

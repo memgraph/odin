@@ -1,4 +1,6 @@
-const getEditorPosition = (file: string, data: string): { anchor: { ch: number, line: number }, head: { ch: number, line: number } } => {
+import { Selection } from "src/shared/types/Selection";
+
+const getEditorPosition = (file: string, data: string): Selection => {
     const lines = file.split("\n");
     let index = file.search(data);
     let total = 0;

@@ -3,7 +3,7 @@ import cytoscape from "cytoscape";
 import theme from "src/shared/theme";
 
 interface GraphContainerProps {
-    visible: boolean;
+    $visible: boolean;
 }
 
 const priorityColors = {
@@ -17,7 +17,7 @@ type priorityColorsKey = keyof typeof priorityColors;
 export const GraphContainer = styled.div<GraphContainerProps>`
     width: 100%;
     height: 100%;
-    visibility: ${props => props.visible ? "visible" : "hidden"};
+    visibility: ${props => props.$visible ? "visible" : "hidden"};
 `;
 
 export const GraphStyle = [
@@ -58,12 +58,6 @@ export const GraphStyle = [
             "background-color": theme.colors["accent"],
             "border-width": "2px",
             "border-color": theme.colors["secondary-neutral"],
-        },
-    },
-    {
-        selector: "node:hover",
-        style: {
-            "cursor": "pointer",
         },
     },
 ]
