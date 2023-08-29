@@ -13,12 +13,13 @@ export const Container = styled.div`
 `;
 
 export const LoadingIcon = styled(Loader2)`
+    ${AnimatedRotate};
     width: var(--size-4-8);
     height: var(--size-4-8);
     color: var(--color-accent-1);
 `;
 
-export const LoadingContainer = styled(AnimatedRotate)`
+export const LoadingContainer = styled.div`
     position: absolute;
     top: 50%;
     left: 50%;

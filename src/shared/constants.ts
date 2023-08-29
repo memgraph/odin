@@ -1,9 +1,12 @@
-export const layout = "circle";
+export const LAYOUT = "circle";
 
-export const loadingText = "Data loading. Please wait.";
+export const OPERATIONS_MAP: Record<string, { url: string; method: string }> = {
+    create: { url: "add", method: "PUT" },
+    modify: { url: "update", method: "PUT" },
+    rename: { url: "rename", method: "POST" },
+    delete: { url: "delete", method: "DELETE" },
+};
 
-export const noSelectedText = "Please select some text and try again.";
+export const OPERATIONS = ["create", "delete", "modify", "rename"];
 
-export const fetchFailed = "Failed fetching data. Please try again.";
-
-export const updateFailed = "Failed updating data. You might need to restart the app."
+export const DEFAULT_SELECTION = "vault";

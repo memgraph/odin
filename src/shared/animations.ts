@@ -1,4 +1,4 @@
-import { styled, keyframes } from "styled-components";
+import { keyframes, css } from "styled-components";
 
 const rotate = keyframes`
     from {
@@ -6,6 +6,6 @@ const rotate = keyframes`
     }
 `;
 
-export const AnimatedRotate = styled.div`
+export const AnimatedRotate = css`
     animation: ${rotate} 2s linear infinite;
 `;

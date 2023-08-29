@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import cytoscape from "cytoscape";
 import { GraphContainer, GraphStyle } from "./Graph.styles";
 import { Node, Edge } from "../../shared/types/graphTypes";
-import { layout } from "../../shared/constants";
+import { LAYOUT } from "../../shared/constants";
 import { useApp } from "../hooks/useApp";
 
 interface GraphProps {
@@ -30,7 +30,7 @@ const Graph: React.FC<GraphProps> = ({
 	app?.workspace.onLayoutReady(() => {
 		app.workspace.on("resize", () => {
 			if (cyRef.current) {
-				cyRef.current.layout({ name: layout }).run();
+				cyRef.current.layout({ name: LAYOUT }).run();
 			}
 		});
 	});
@@ -86,7 +86,7 @@ const Graph: React.FC<GraphProps> = ({
 			elements: { nodes: [], edges: [] },
 			style: GraphStyle,
 			layout: {
-				name: layout,
+				name: LAYOUT,
 				fit: true,
 				padding: 150,
 				spacingFactor: 150,
@@ -111,7 +111,7 @@ const Graph: React.FC<GraphProps> = ({
 			if (cyRef.current) {
 				cyRef.current.elements().remove();
 				cyRef.current.add([...data.nodes, ...data.edges]);
-				cyRef.current.layout({ name: layout }).run();
+				cyRef.current.layout({ name: LAYOUT }).run();
 			}
 			cyRef.current?.resize();
 		};

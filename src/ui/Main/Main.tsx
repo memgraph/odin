@@ -9,18 +9,9 @@ import { Archive, FileBarChart2 } from "lucide-react";
 import { fetchData } from "src/util/fetchData";
 import { FileSystemAdapter, Notice, TAbstractFile } from "obsidian";
 import getEditorPosition from "src/util/getEditorPosition";
-import * as Messages from "src/shared/constants";
-import { AnimatedRotate } from "src/shared/animations";
+import * as Messages from "src/shared/messages";
 import { fetchGraphData } from "./MainUtils";
-
-const OPERATIONS = ["create", "delete", "modify", "rename"];
-const DEFAULT_SELECTION = "vault";
-const operationsMap: Record<string, { url: string; method: string }> = {
-	create: { url: "add", method: "PUT" },
-	modify: { url: "update", method: "PUT" },
-	rename: { url: "rename", method: "POST" },
-	delete: { url: "delete", method: "DELETE" },
-};
+import * as Constants from "src/shared/constants";
 
 const Main: React.FC = (): React.JSX.Element => {
 	const app = useApp();
@@ -28,7 +19,7 @@ const Main: React.FC = (): React.JSX.Element => {
 		nodes: [],
 		edges: [],
 	});
-	const [type, setType] = useState<string>(DEFAULT_SELECTION);
+	const [type, setType] = useState<string>(Constants.DEFAULT_SELECTION);
 	const [suggested, setSuggested] = useState<number[]>([]);
 	const [selectedFile, setSelectedFile] = useState<string>(
 		app?.workspace.activeEditor?.file?.path || ""
@@ -198,9 +189,9 @@ const Main: React.FC = (): React.JSX.Element => {
 			}
 
 			fetchData(
-				`http://localhost:8000/knowledge_base/notes/${operationsMap[operation].url}_file`,
+				`http://localhost:8000/knowledge_base/notes/${Constants.OPERATIONS_MAP[operation].url}_file`,
 				fetchBody,
-				operationsMap[operation].method
+				Constants.OPERATIONS_MAP[operation].method
 			).catch(() => {
 				new Notice(Messages.updateFailed);
 			});
@@ -256,7 +247,7 @@ const Main: React.FC = (): React.JSX.Element => {
 
 		//initRepo();
 
-		OPERATIONS.forEach((op: any) => {
+		Constants.OPERATIONS.forEach((op: any) => {
 			app?.vault.on(op, (file, oldPath?: string) => {
 				if (op === "rename") {
 					handleFileEvent(op)(file, oldPath);
@@ -299,9 +290,7 @@ const Main: React.FC = (): React.JSX.Element => {
 		<S.Container>
 			{disabled && !graphLoading && (
 				<S.GlobalLoadingContainer>
-					<AnimatedRotate>
-						<S.LoadingIcon />
-					</AnimatedRotate>
+					<S.LoadingIcon />
 				</S.GlobalLoadingContainer>
 			)}
 			<RadioSelect
