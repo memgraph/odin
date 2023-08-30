@@ -100,6 +100,8 @@ const Main: React.FC = (): React.JSX.Element => {
 			return;
 		}
 
+		let ignoreResults = false;
+		const active = selectedFile;
 		setDisabled(true);
 		const fetchBody = {
 			repo: {
@@ -121,9 +123,9 @@ const Main: React.FC = (): React.JSX.Element => {
 				).head;
 				pos.ch++;
 
-				if (pos)
+				if (pos && active === selectedFile && !ignoreResults)
 					app.workspace.activeEditor?.editor?.replaceRange(
-						`[[${getFilenameFromPath(data.path).split(".")[0]}]]`,
+						`[[${getFilenameFromPath(data.path).split(".")[0]}]] `,
 						pos,
 						pos
 					);
@@ -132,6 +134,10 @@ const Main: React.FC = (): React.JSX.Element => {
 				new Notice(Messages.fetchFailed);
 			});
 		setDisabled(false);
+
+		return () => {
+			ignoreResults = true;
+		};
 	};
 
 	const nodeSuggest = async (text: string) => {
