@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import * as S from "./PromptBar.styles";
-import { AnimatedRotate } from "../../shared/animations";
 import { fetchData } from "../../util/fetchData";
 import { useApp } from "../hooks/useApp";
 import { FileSystemAdapter } from "obsidian";
