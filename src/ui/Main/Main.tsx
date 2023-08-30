@@ -16,6 +16,7 @@ import { NodeSingular } from "cytoscape";
 import { AnalyticsNode } from "src/model/AnalyticsNode";
 import { Selection } from "src/shared/types/Selection";
 import { Sentence } from "src/model/Sentence";
+import getFilenameFromPath from "src/util/getFilenameFromPath";
 
 const Main: React.FC = (): React.JSX.Element => {
 	const app = useApp();
@@ -71,7 +72,7 @@ const Main: React.FC = (): React.JSX.Element => {
 						selections.push(
 							getEditorPosition(
 								app?.workspace.activeEditor?.editor?.getValue() ||
-								"",
+									"",
 								element.content
 							)
 						);
@@ -99,6 +100,7 @@ const Main: React.FC = (): React.JSX.Element => {
 			return;
 		}
 
+		setDisabled(true);
 		const fetchBody = {
 			repo: {
 				path: root,
@@ -112,12 +114,24 @@ const Main: React.FC = (): React.JSX.Element => {
 			fetchBody
 		)
 			.then((data) => {
-				// TODO
-				console.log(data);
+				const pos = getEditorPosition(
+					app.workspace.activeEditor?.editor?.getValue() || "",
+					app.workspace.activeEditor?.editor?.getSelection().trim() ||
+						""
+				).head;
+				pos.ch++;
+
+				if (pos)
+					app.workspace.activeEditor?.editor?.replaceRange(
+						`[[${getFilenameFromPath(data.path).split(".")[0]}]]`,
+						pos,
+						pos
+					);
 			})
 			.catch(() => {
 				new Notice(Messages.fetchFailed);
 			});
+		setDisabled(false);
 	};
 
 	const nodeSuggest = async (text: string) => {
