@@ -101,7 +101,7 @@ const Main: React.FC = (): React.JSX.Element => {
 
 		const fetchBody = {
 			repo: {
-				path: root + "/" + file,
+				path: root,
 				type: "Notes",
 			},
 			content: app?.workspace.activeEditor?.editor?.getSelection() || "",
