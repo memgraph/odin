@@ -26,14 +26,19 @@ Before you begin, make sure you have the following:
       ```
       cd magic-graph-obsidian
       ```
-    - Install the required Node.js dependencies:
-      ```
-      npm install
-      ```
-    - Start the development build:
-      ```
-      npm run dev
-      ```
+      1. If you want to run ODIN via Docker, do:
+          ```
+          docker compose up
+          ```
+      2. If you want to run ODIN locally:
+        - Install the required Node.js dependencies:
+          ```
+          npm install
+          ```
+        - Start the development build:
+          ```
+          npm run dev
+          ````
 
 4. **Disable Restricted Mode:**
 
