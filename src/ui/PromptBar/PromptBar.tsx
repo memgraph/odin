@@ -231,11 +231,7 @@ const PromptBar: React.FC<PromptBarProps> = ({
 				</S.PromptDropDownMessages>
 				{chat.length > 0 ? (
 					<S.PromptDropDownInfo>
-						{loading ? (
-							<AnimatedRotate>
-								<S.LoadingIcon />
-							</AnimatedRotate>
-						) : null}
+						{loading ? <S.LoadingIcon /> : null}
 						{error ? (
 							<>
 								<S.PromptDropDownError>

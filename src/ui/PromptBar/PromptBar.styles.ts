@@ -1,5 +1,6 @@
 import styled, { css } from "styled-components";
 import { MoveRight, Loader2, RotateCw, Share2, User2 } from "lucide-react";
+import { AnimatedRotate } from "src/shared/animations";
 
 interface PromptDropDownProps {
     $isVisible: boolean;
@@ -132,6 +133,7 @@ export const PromptDropDownMessages = styled.div`
 `;
 
 export const LoadingIcon = styled(Loader2)`
+    ${AnimatedRotate};
     width: var(--size-4-8);
     height: var(--size-4-8);
     color: var(--color-accent-1);
