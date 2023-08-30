@@ -37,16 +37,16 @@ const Graph: React.FC<GraphProps> = ({
 
 	const registerFileOpenHandler = () => {
 		app?.workspace.on("file-open", () => {
-			setSelected(app.workspace.activeEditor?.file?.path);
+			setSelected(app.workspace.activeEditor?.file?.path.split(/(\\|\/)/g).pop());
 		});
 	};
 
 	const registerNodeClickHandler = () => {
 		const handleNodeClick = (event: cytoscape.EventObject) => {
 			if (event.target.data().priority === 1) {
-				console.log(event.target.data().path);
-				setSelected(event.target.data().path);
-				app?.workspace.openLinkText("", event.target.data().path);
+				let path = event.target.data().path.split(/(\\|\/)/g).pop();
+				setSelected(path);
+				app?.workspace.openLinkText("", path);
 			}
 		};
 		cyRef.current?.on("click", "node", handleNodeClick);
@@ -127,7 +127,7 @@ const Graph: React.FC<GraphProps> = ({
 					const nodeData = node.data();
 					if (nodeData.priority !== 1) node.unselectify();
 					if (
-						(nodeData.path === selected && type !== "file") ||
+						(nodeData.path.split(/(\\|\/)/g).pop() === selected && type !== "file") ||
 						(nodeData.selected && type === "file")
 					) {
 						node.select();

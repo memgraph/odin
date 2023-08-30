@@ -71,7 +71,7 @@ const Main: React.FC = (): React.JSX.Element => {
 						selections.push(
 							getEditorPosition(
 								app?.workspace.activeEditor?.editor?.getValue() ||
-									"",
+								"",
 								element.content
 							)
 						);
