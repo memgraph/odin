@@ -260,7 +260,7 @@ const Main: React.FC = (): React.JSX.Element => {
 
 	useEffect(() => {
 		setDisabled(true);
-		/*const initRepo = async () => {
+		const initRepo = async () => {
 			await fetchData(
 				"http://localhost:8000/knowledge_base/general/init_local_repo",
 				{
@@ -268,9 +268,9 @@ const Main: React.FC = (): React.JSX.Element => {
 					type: "Notes",
 				}
 			);
-		};*/
+		};
 
-		//initRepo();
+		initRepo();
 
 		Constants.OPERATIONS.forEach((op: "rename") => {
 			app?.vault.on(op, (file, oldPath?: string) => {
