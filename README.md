@@ -1,5 +1,13 @@
 # ODIN - Obsidian Driven Information Network
 
+## Disclaimer
+
+> **Warning**
+> It is recommended that you have access to GPT-4 via the OpenAI API. GPT-3.5 will probably fail to make correct knowledge graphs from your data.
+> Since we still don't have access to GPT-4 OpenAI API, although we made our account a month ago and generated >1$ in billing a week ago,
+> the `init_repo`, `update_file` and `add_file` endpoints are still untested. We initialized knowledge graphs manually, through ChatGPT.
+> **Here be dragons.**
+
 ## Manual DEV installation
 
 ### Prerequisites
