@@ -89,9 +89,9 @@ Before you begin, make sure you have the following:
 
     - The ODIN plugin is now installed and active. You can access its features through the Obsidian interface.
 
-### Features
+## Features
 
-Most features are accessible through the `Graph Prompt view` button in the context menu opened by clicking the `Expand` button in the right upper corner of Obsidian.
+Most features are accessible through the `Graph Prompt view` button in the menu opened by clicking the `Expand` button in the right upper corner of Obsidian.
 
 1. Prompt Bar for LLM Queries
 
