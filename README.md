@@ -57,6 +57,8 @@ Before you begin, make sure you have the following:
         It will take up to ten minutes to download and run all dependencies. Now, that you have ODIN successfully installed, you can go to the next step.
 
       ### Manual installation
+  
+      Make sure you have [Node.js](https://nodejs.org/en/download/current) version 14 or above and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed.
 
       1. Install the required Node.js dependencies:
         ```
