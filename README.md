@@ -15,51 +15,68 @@
 > the `init_repo`, `update_file` and `add_file` endpoints are still untested. We initialized knowledge graphs manually, through ChatGPT.
 > **Here be dragons.**
 
-## Manual DEV installation
-
-### Prerequisites
+## Prerequisites
 
 Before you begin, make sure you have the following:
 
-- An active Obsidian vault.
 - Obsidian installed on your system.
-- Node.js and npm (Node Package Manager) installed on your system.
+- An active Obsidian vault.
 
-### Installation
+## Installation
 
 1. **Download the Plugin:**
 
-    - Clone the repository inside the plugins folder using Git:
+    - Clone the repository inside the plugins folder (your_vault/.obsidian/plugins) using Git:
       ```
-      git clone https://github.com/memgraph/magic-graph-obsidian.git
-      ```
+      git clone https://github.com/memgraph/odin.git
+      ```    
 
 2. **Install Dependencies and Start the Plugin:**
 
     - Open your terminal or command prompt.
     - Navigate to the plugin's root directory:
       ```
-      cd magic-graph-obsidian
+      cd odin
       ```
-      1. If you want to run ODIN via Docker, do:
-          ```
-          docker compose up
-          ```
-      2. If you want to run ODIN locally:
-        - Install the required Node.js dependencies:
-          ```
-          npm install
-          ```
-        - Start the development build:
-          ```
-          npm run dev
-          ````
+    - You have the option to install ODIN using Docker, which will automatically install, set up and run the Memgraph database, the backend, and frontend components, or you can manually run the project locally for a more customized setup or if you already have Memgraph up and running.
+      ### Docker installation
+
+      Before you start, make sure you have a running [Docker](https://www.docker.com/) instance and [Docker compose](https://docs.docker.com/compose/install/) installed.
+
+      1. You will need to create a `.env` file inside the ODIN folder with your OpenAI API key to access the app features. It should look like this:
+        ```
+        OPENAI_API_KEY=YOUR_API_KEY
+        ```
+        Where YOUR_API_KEY is a key you can get [here](https://openai.com/).
+
+      2. Run:
+        ```
+        docker compose up
+        ```
+
+        It will take up to ten minutes to download and run all dependencies. Now, that you have ODIN successfully installed, you can go to the next step.
+
+      ### Manual installation
+
+      1. Install the required Node.js dependencies:
+        ```
+        npm install
+        ```
+
+      2. Start the development build:
+        ```
+        npm run dev
+        ```
+
+        You now have the app frontend up and running.
+
+      3. You will also need to run the [Memgraph](https://memgraph.com/docs/memgraph/installation) database and the application backend by following the installation steps for [BOR](https://github.com/memgraph/bor) - backend for Obsidian and Rune.
 
 4. **Disable Restricted Mode:**
 
     - In the Obsidian settings, navigate to "Options."
     - Click on the "Community plugins" tab.
-    - Click "Turn on community plugins" button.
+    - Click the "Turn on community plugins" button.
 
 5. **Enable the Plugin:**
 
@@ -70,4 +87,28 @@ Before you begin, make sure you have the following:
 
 6. **Plugin Usage:**
 
-    - The [Your Plugin Name] plugin is now installed and active. You can access its features through the Obsidian interface as per the plugin's documentation.
+    - The ODIN plugin is now installed and active. You can access its features through the Obsidian interface.
+
+### Features
+
+Most features are accessible through the `Graph Prompt view` button in the context menu opened by clicking the `Expand` button in the right upper corner of Obsidian.
+
+1. Prompt Bar for LLM Queries
+
+- ODIN integrates Large Language Models (LLMs) into Obsidian using LangChain, allowing you to ask questions about the data stored in your knowledge graph right from the prompt bar.
+  
+2. Graph Visualization
+
+- `Vault view` will give you a comprehensive understanding of your notes and knowledge by visualizing your entire Obsidian vault as a dynamic knowledge graph.
+- Switch between `Vault view` and `File view` to get a detailed visualization of specific files.
+- By clicking nodes in the `File view` you will get highlighted sentences thematically connected to that node in your editor.
+
+3. Dropdown Menu Functions
+
+Right click on the highlighted text in the editor to access the following features:
+
+- **Generate questions**: Extract thought-provoking questions from your markdown files, encouraging deeper contemplation and critical thinking.
+
+- **Link prediction**: Automatically generate links to other markdown files in your vault that are thematically connected to the highlighted text, enriching your notes with relevant references.
+
+- **Node suggestion**: Access thematically connected nodes related to the highlighted text, fostering meaningful connections and comprehensive understanding of your information.
