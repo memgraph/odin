@@ -7,6 +7,48 @@
 
 # ODIN - Obsidian Driven Information Network
 
+## Table of contents
+1. [Features](#features)
+2. [Disclaimer](#disclaimer)
+3. [Prerequisites](#prerequisites)
+4. [Installation](#installation)
+  * 1. [Docker](#docker-installation)
+  * 2. [Manual](#manual-installation)
+
+## Features
+
+<img src="./src/assets/images/odin.png" alt="odin">
+
+Most features are accessible through the `Graph Prompt view` button in the menu opened by clicking the `Expand` button in the right upper corner of Obsidian.
+
+1. **Prompt Bar for LLM Queries**
+
+<p align="center">
+  <img src="./src/assets/images/odin-promptbar.png" alt="odin prompt bar" width="400">
+</p>
+
+- ODIN integrates Large Language Models (LLMs) into Obsidian using LangChain, allowing you to ask questions about the data stored in your knowledge graph right from the prompt bar.
+  
+2. **Graph Visualization**
+
+- `Vault view` will give you a comprehensive understanding of your notes and knowledge by visualizing your entire Obsidian vault as a dynamic knowledge graph.
+- Switch between `Vault view` and `File view` to get a detailed visualization of specific files.
+- By clicking nodes in the `File view` you will get highlighted sentences thematically connected to that node in your editor.
+
+3. **Dropdown Menu Functions**
+
+<p align="center">
+  <img src="./src/assets/images/odin-dropdown.png" alt="odin dropdown menu" width="400">
+</p>
+
+Right click on the highlighted text in the editor to access the following features:
+
+- **Generate questions**: Extract thought-provoking questions from your markdown files, encouraging deeper contemplation and critical thinking.
+
+- **Link prediction**: Automatically generate links to other markdown files in your vault that are thematically connected to the highlighted text, enriching your notes with relevant references.
+
+- **Node suggestion**: Access thematically connected nodes related to the highlighted text, fostering meaningful connections and comprehensive understanding of your information.
+
 ## Disclaimer
 
 > **Warning**
@@ -90,27 +132,3 @@ Before you begin, make sure you have the following:
 6. **Plugin Usage:**
 
     - The ODIN plugin is now installed and active. You can access its features through the Obsidian interface.
-
-## Features
-
-Most features are accessible through the `Graph Prompt view` button in the menu opened by clicking the `Expand` button in the right upper corner of Obsidian.
-
-1. Prompt Bar for LLM Queries
-
-- ODIN integrates Large Language Models (LLMs) into Obsidian using LangChain, allowing you to ask questions about the data stored in your knowledge graph right from the prompt bar.
-  
-2. Graph Visualization
-
-- `Vault view` will give you a comprehensive understanding of your notes and knowledge by visualizing your entire Obsidian vault as a dynamic knowledge graph.
-- Switch between `Vault view` and `File view` to get a detailed visualization of specific files.
-- By clicking nodes in the `File view` you will get highlighted sentences thematically connected to that node in your editor.
-
-3. Dropdown Menu Functions
-
-Right click on the highlighted text in the editor to access the following features:
-
-- **Generate questions**: Extract thought-provoking questions from your markdown files, encouraging deeper contemplation and critical thinking.
-
-- **Link prediction**: Automatically generate links to other markdown files in your vault that are thematically connected to the highlighted text, enriching your notes with relevant references.
-
-- **Node suggestion**: Access thematically connected nodes related to the highlighted text, fostering meaningful connections and comprehensive understanding of your information.
