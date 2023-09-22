@@ -12,8 +12,8 @@
 2. [Disclaimer](#disclaimer)
 3. [Prerequisites](#prerequisites)
 4. [Installation](#installation)
-  * 1. [Docker](#docker-installation)
-  * 2. [Manual](#manual-installation)
+	1. [Docker](#docker-installation)
+	2. [Manual](#manual-installation)
 
 ## Features
 
